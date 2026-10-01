@@ -5,6 +5,7 @@ import {
   useTransform,
   useReducedMotion,
 } from "framer-motion";
+
 const lines = [
   "14. Oktober 2026",
   "Heute wirst du 15.",
@@ -13,18 +14,36 @@ const lines = [
   "Also habe ich dir etwas gebaut.",
   "Für Yael.",
 ];
+
 function Frame({ index, progress, text, reduced }) {
+  const segment = 1 / lines.length;
+  const start = index * segment;
+
+  // Jeder Satz bekommt eine eigene Phase:
+  // erscheinen -> in der Mitte stehen -> verschwinden -> kurze Pause
+  const fadeInEnd = start + segment * 0.18;
+  const holdEnd = start + segment * 0.62;
+  const fadeOutEnd = start + segment * 0.82;
+
   const opacity = useTransform(
     progress,
-    [
-      Math.max(0, (index - 0.25) / 6),
-      index / 6,
-      (index + 0.7) / 6,
-      (index + 1) / 6,
-    ],
-    [index === 0 ? 1 : 0, 1, 1, 0],
+    index === 0
+      ? [
+          0,
+          start + segment * 0.58,
+          start + segment * 0.78,
+          start + segment * 0.82,
+        ]
+      : [start, fadeInEnd, holdEnd, fadeOutEnd],
+    index === 0 ? [1, 1, 0, 0] : [0, 1, 1, 0],
   );
-  const y = useTransform(progress, [index / 6, (index + 1) / 6], [0, -35]);
+
+  const y = useTransform(
+    progress,
+    [start, fadeInEnd, holdEnd, fadeOutEnd],
+    [28, 0, 0, -28],
+  );
+
   return (
     <motion.div
       style={reduced ? {} : { opacity, y }}
@@ -37,23 +56,30 @@ function Frame({ index, progress, text, reduced }) {
             ? "Von Kiron. Für dich."
             : ""}
       </p>
+
       <h1>{text}</h1>
+
       {index === 0 && (
         <a className="scroll-hint" href="#beginn">
           Scroll langsam weiter <span>↓</span>
         </a>
       )}
+
       {index === 5 && <span className="fine-date">09.04.2026 — ∞</span>}
     </motion.div>
   );
 }
+
 export default function Intro() {
   const ref = useRef(null);
+
   const { scrollYProgress } = useScroll({
     target: ref,
     offset: ["start start", "end end"],
   });
+
   const reduced = useReducedMotion();
+
   return (
     <section
       ref={ref}
@@ -63,6 +89,7 @@ export default function Intro() {
       <div className="intro-stage">
         <div className="intro-light" />
         <div className="dust" aria-hidden="true" />
+
         {lines.map((text, i) => (
           <Frame
             key={text}

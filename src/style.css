@@ -116,7 +116,7 @@ p {
   margin-top: 24px;
 }
 .intro {
-  height: 660svh;
+  height: 840svh;
   background: #0c080a;
   position: relative;
 }
@@ -1001,7 +1001,7 @@ p {
     font-size: 0.65rem;
   }
   .intro {
-    height: 540svh;
+    height: 780svh;
   }
   .chapter-nav {
     padding: 12px 24px;
