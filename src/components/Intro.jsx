@@ -87,7 +87,13 @@ function Frame({ index, progress, text, reduced }) {
 
   return (
     <motion.div
-      style={reduced ? {} : { opacity, y }}
+      style={
+        reduced
+          ? {}
+          : index === lines.length - 1
+            ? { opacity, y, zIndex: 10 }
+            : { opacity, y }
+      }
       className={`intro-frame ${reduced ? "static-frame" : ""}`}
     >
       <p className="eyebrow">

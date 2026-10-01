@@ -116,12 +116,13 @@ p {
   margin-top: 24px;
 }
 .intro {
-  height: 840svh;
+  height: 660svh;
   background: #0c080a;
   position: relative;
 }
 .intro-stage {
   height: 100svh;
+  min-height: 100dvh;
   position: sticky;
   top: 0;
   overflow: hidden;
@@ -1001,7 +1002,7 @@ p {
     font-size: 0.65rem;
   }
   .intro {
-    height: 780svh;
+    height: 660svh;
   }
   .chapter-nav {
     padding: 12px 24px;
