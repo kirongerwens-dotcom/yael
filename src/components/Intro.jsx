@@ -16,32 +16,58 @@ const lines = [
 ];
 
 function Frame({ index, progress, text, reduced }) {
-  const segment = 1 / lines.length;
-  const start = index * segment;
+  const count = lines.length;
 
-  // Jeder Satz bekommt eine eigene Phase:
-  // erscheinen -> in der Mitte stehen -> verschwinden -> kurze Pause
-  const fadeInEnd = start + segment * 0.18;
-  const holdEnd = start + segment * 0.62;
-  const fadeOutEnd = start + segment * 0.82;
+  // Jede Szene besitzt exakt 1/6 der gesamten Intro-Strecke.
+  const sceneStart = index / count;
+  const sceneEnd = (index + 1) / count;
+  const sceneLength = sceneEnd - sceneStart;
 
+  const fadeIn = sceneStart + sceneLength * 0.16;
+  const holdUntil = sceneStart + sceneLength * 0.64;
+  const fadeOut = sceneStart + sceneLength * 0.82;
+
+  // Wichtig:
+  // Der komplette 0→1-Bereich ist definiert.
+  // Dadurch kann kein anderer Frame außerhalb seiner Szene sichtbar bleiben.
   const opacity = useTransform(
     progress,
     index === 0
       ? [
           0,
-          start + segment * 0.58,
-          start + segment * 0.78,
-          start + segment * 0.82,
+          holdUntil,
+          fadeOut,
+          Math.min(1, sceneEnd),
+          1,
         ]
-      : [start, fadeInEnd, holdEnd, fadeOutEnd],
-    index === 0 ? [1, 1, 0, 0] : [0, 1, 1, 0],
+      : [
+          0,
+          sceneStart,
+          fadeIn,
+          holdUntil,
+          fadeOut,
+          sceneEnd,
+          1,
+        ],
+    index === 0
+      ? [1, 1, 0, 0, 0]
+      : [0, 0, 1, 1, 0, 0, 0],
+    { clamp: true },
   );
 
   const y = useTransform(
     progress,
-    [start, fadeInEnd, holdEnd, fadeOutEnd],
-    [28, 0, 0, -28],
+    [
+      0,
+      sceneStart,
+      fadeIn,
+      holdUntil,
+      fadeOut,
+      sceneEnd,
+      1,
+    ],
+    [24, 24, 0, 0, -24, -24, -24],
+    { clamp: true },
   );
 
   return (
@@ -60,12 +86,14 @@ function Frame({ index, progress, text, reduced }) {
       <h1>{text}</h1>
 
       {index === 0 && (
-        <a className="scroll-hint" href="#beginn">
+        <div className="scroll-hint">
           Scroll langsam weiter <span>↓</span>
-        </a>
+        </div>
       )}
 
-      {index === 5 && <span className="fine-date">09.04.2026 — ∞</span>}
+      {index === 5 && (
+        <span className="fine-date">09.04.2026 — ∞</span>
+      )}
     </motion.div>
   );
 }
