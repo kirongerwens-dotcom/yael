@@ -6,59 +6,110 @@ import {
   useReducedMotion,
 } from "framer-motion";
 
-const lines = [
-  "14. Oktober 2026",
-  "Heute wirst du 15.",
-  "Eigentlich wollte ich dir einfach nur etwas schenken.",
-  "Aber irgendwie war mir das zu wenig.",
-  "Also habe ich dir etwas gebaut.",
-  "Für Yael.",
+const scenes = [
+  {
+    text: "Seit dem 9. April.",
+    eyebrow: "Für dich.",
+    kind: "normal",
+    hint: true,
+  },
+  {
+    text: "176",
+    sub: "Tage",
+    kind: "number",
+  },
+  {
+    text: "≈ 528",
+    sub: "Stunden",
+    kind: "number",
+  },
+  {
+    text: "31.680",
+    sub: "Minuten",
+    kind: "number",
+  },
+  {
+    text: "1.900.800",
+    sub: "Sekunden",
+    kind: "number",
+  },
+  {
+    text: "Nächte. Tage.",
+    sub: "Viel zu viele kleine Änderungen.",
+    kind: "quiet",
+  },
+  {
+    text: "Und in jeder einzelnen davon",
+    sub: "habe ich an dich gedacht.",
+    kind: "heart",
+  },
+  {
+    text: "Jedes Wort auf dieser Seite",
+    sub: "ist von ganzem Herzen geschrieben.",
+    kind: "heart",
+  },
+  {
+    text: "Für dich.",
+    kind: "quiet",
+  },
+  {
+    text: "14. Oktober 2026",
+    eyebrow: "Ein Tag. Ein Mensch. Alles.",
+    kind: "normal",
+  },
+  {
+    text: "Heute wirst du 15.",
+    kind: "normal",
+  },
+  {
+    text: "Eigentlich wollte ich dir einfach nur etwas schenken.",
+    kind: "normal",
+  },
+  {
+    text: "Aber irgendwie war mir das zu wenig.",
+    kind: "normal",
+  },
+  {
+    text: "Also habe ich dir etwas gebaut.",
+    kind: "normal",
+  },
+  {
+    text: "Für Yael.",
+    eyebrow: "Von Kiron. Für dich.",
+    fine: "09.04.2026 — ∞",
+    kind: "final",
+  },
 ];
 
-function Frame({ index, progress, text, reduced }) {
-  const count = lines.length;
+function Frame({ index, progress, scene, reduced }) {
+  const count = scenes.length;
+  const isFirst = index === 0;
+  const isLast = index === count - 1;
 
-  // Jede Szene besitzt exakt 1/6 der gesamten Intro-Strecke.
   const sceneStart = index / count;
   const sceneEnd = (index + 1) / count;
   const sceneLength = sceneEnd - sceneStart;
 
-  const fadeIn = sceneStart + sceneLength * 0.16;
-  const holdUntil = sceneStart + sceneLength * 0.64;
-  const fadeOut = sceneStart + sceneLength * 0.82;
-
-  // Wichtig:
-  // Der komplette 0→1-Bereich ist definiert.
-  // Dadurch kann kein anderer Frame außerhalb seiner Szene sichtbar bleiben.
-  const isLast = index === count - 1;
+  const fadeInEnd = sceneStart + sceneLength * 0.16;
+  const holdEnd = sceneStart + sceneLength * 0.68;
+  const fadeOutEnd = sceneStart + sceneLength * 0.88;
 
   const opacity = useTransform(
     progress,
-    index === 0
-      ? [
-          0,
-          holdUntil,
-          fadeOut,
-          Math.min(1, sceneEnd),
-          1,
-        ]
+    isFirst
+      ? [0, holdEnd, fadeOutEnd, sceneEnd, 1]
       : isLast
-        ? [
-            0,
-            sceneStart,
-            fadeIn,
-            1,
-          ]
+        ? [0, sceneStart, fadeInEnd, 1]
         : [
             0,
             sceneStart,
-            fadeIn,
-            holdUntil,
-            fadeOut,
+            fadeInEnd,
+            holdEnd,
+            fadeOutEnd,
             sceneEnd,
             1,
           ],
-    index === 0
+    isFirst
       ? [1, 1, 0, 0, 0]
       : isLast
         ? [0, 0, 1, 1]
@@ -69,19 +120,32 @@ function Frame({ index, progress, text, reduced }) {
   const y = useTransform(
     progress,
     isLast
-      ? [0, sceneStart, fadeIn, 1]
-      : [
-          0,
-          sceneStart,
-          fadeIn,
-          holdUntil,
-          fadeOut,
-          sceneEnd,
-          1,
-        ],
+      ? [0, sceneStart, fadeInEnd, 1]
+      : isFirst
+        ? [0, holdEnd, fadeOutEnd, 1]
+        : [
+            0,
+            sceneStart,
+            fadeInEnd,
+            holdEnd,
+            fadeOutEnd,
+            sceneEnd,
+            1,
+          ],
     isLast
       ? [24, 24, 0, 0]
-      : [24, 24, 0, 0, -24, -24, -24],
+      : isFirst
+        ? [0, 0, -24, -24]
+        : [24, 24, 0, 0, -24, -24, -24],
+    { clamp: true },
+  );
+
+  const scale = useTransform(
+    progress,
+    [sceneStart, fadeInEnd, holdEnd, fadeOutEnd],
+    scene.kind === "number"
+      ? [0.94, 1, 1.025, 1.04]
+      : [0.98, 1, 1, 1.01],
     { clamp: true },
   );
 
@@ -90,31 +154,27 @@ function Frame({ index, progress, text, reduced }) {
       style={
         reduced
           ? {}
-          : index === lines.length - 1
-            ? { opacity, y, zIndex: 10 }
-            : { opacity, y }
+          : isLast
+            ? { opacity, y, scale, zIndex: 10 }
+            : { opacity, y, scale }
       }
-      className={`intro-frame ${reduced ? "static-frame" : ""}`}
+      className={`intro-frame intro-frame-${scene.kind} ${
+        reduced ? "static-frame" : ""
+      }`}
     >
-      <p className="eyebrow">
-        {index === 0
-          ? "Ein Tag. Ein Mensch. Alles."
-          : index === 5
-            ? "Von Kiron. Für dich."
-            : ""}
-      </p>
+      {scene.eyebrow && <p className="eyebrow">{scene.eyebrow}</p>}
 
-      <h1>{text}</h1>
+      <h1>{scene.text}</h1>
 
-      {index === 0 && (
+      {scene.sub && <p className="intro-sub">{scene.sub}</p>}
+
+      {scene.hint && (
         <div className="scroll-hint">
           Scroll langsam weiter <span>↓</span>
         </div>
       )}
 
-      {index === 5 && (
-        <span className="fine-date">09.04.2026 — ∞</span>
-      )}
+      {scene.fine && <span className="fine-date">{scene.fine}</span>}
     </motion.div>
   );
 }
@@ -139,10 +199,10 @@ export default function Intro() {
         <div className="intro-light" />
         <div className="dust" aria-hidden="true" />
 
-        {lines.map((text, i) => (
+        {scenes.map((scene, i) => (
           <Frame
-            key={text}
-            text={text}
+            key={`${i}-${scene.text}`}
+            scene={scene}
             index={i}
             progress={scrollYProgress}
             reduced={reduced}

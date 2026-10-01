@@ -116,7 +116,7 @@ p {
   margin-top: 24px;
 }
 .intro {
-  height: 660svh;
+  height: 1200svh;
   background: #0c080a;
   position: relative;
 }
@@ -1002,7 +1002,7 @@ p {
     font-size: 0.65rem;
   }
   .intro {
-    height: 660svh;
+    height: 1150svh;
   }
   .chapter-nav {
     padding: 12px 24px;
@@ -1169,5 +1169,65 @@ p {
   }
   .hug i:nth-child(2) {
     transform: translateX(-15px);
+  }
+}
+
+/* ----- Extended opening sequence ----- */
+
+.intro-sub {
+  margin: 24px auto 0;
+  color: #c4a9b1;
+  font-size: clamp(1.15rem, 2.5vw, 1.8rem);
+  line-height: 1.4;
+  letter-spacing: -0.02em;
+  max-width: 760px;
+}
+
+.intro-frame-number h1 {
+  font-size: clamp(5rem, 15vw, 13rem);
+  line-height: 0.9;
+  letter-spacing: -0.075em;
+  font-variant-numeric: tabular-nums;
+}
+
+.intro-frame-number .intro-sub {
+  margin-top: 30px;
+  text-transform: uppercase;
+  letter-spacing: 0.24em;
+  font-size: clamp(0.75rem, 1.5vw, 1rem);
+}
+
+.intro-frame-quiet h1 {
+  font-family: Georgia, serif;
+  font-style: italic;
+  font-size: clamp(3.2rem, 8vw, 7rem);
+}
+
+.intro-frame-heart h1 {
+  font-size: clamp(2.8rem, 7vw, 6.5rem);
+}
+
+.intro-frame-heart .intro-sub {
+  color: #e0b6c2;
+  font-family: Georgia, serif;
+  font-style: italic;
+  font-size: clamp(1.5rem, 3vw, 2.5rem);
+}
+
+@media (max-width: 600px) {
+  .intro-frame-number h1 {
+    font-size: clamp(4.2rem, 20vw, 7rem);
+  }
+
+  .intro-frame-heart h1 {
+    font-size: clamp(2.3rem, 10vw, 4rem);
+  }
+
+  .intro-frame-quiet h1 {
+    font-size: clamp(2.8rem, 12vw, 4.8rem);
+  }
+
+  .intro-sub {
+    max-width: 90%;
   }
 }
