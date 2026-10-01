@@ -30,6 +30,8 @@ function Frame({ index, progress, text, reduced }) {
   // Wichtig:
   // Der komplette 0→1-Bereich ist definiert.
   // Dadurch kann kein anderer Frame außerhalb seiner Szene sichtbar bleiben.
+  const isLast = index === count - 1;
+
   const opacity = useTransform(
     progress,
     index === 0
@@ -40,6 +42,34 @@ function Frame({ index, progress, text, reduced }) {
           Math.min(1, sceneEnd),
           1,
         ]
+      : isLast
+        ? [
+            0,
+            sceneStart,
+            fadeIn,
+            1,
+          ]
+        : [
+            0,
+            sceneStart,
+            fadeIn,
+            holdUntil,
+            fadeOut,
+            sceneEnd,
+            1,
+          ],
+    index === 0
+      ? [1, 1, 0, 0, 0]
+      : isLast
+        ? [0, 0, 1, 1]
+        : [0, 0, 1, 1, 0, 0, 0],
+    { clamp: true },
+  );
+
+  const y = useTransform(
+    progress,
+    isLast
+      ? [0, sceneStart, fadeIn, 1]
       : [
           0,
           sceneStart,
@@ -49,24 +79,9 @@ function Frame({ index, progress, text, reduced }) {
           sceneEnd,
           1,
         ],
-    index === 0
-      ? [1, 1, 0, 0, 0]
-      : [0, 0, 1, 1, 0, 0, 0],
-    { clamp: true },
-  );
-
-  const y = useTransform(
-    progress,
-    [
-      0,
-      sceneStart,
-      fadeIn,
-      holdUntil,
-      fadeOut,
-      sceneEnd,
-      1,
-    ],
-    [24, 24, 0, 0, -24, -24, -24],
+    isLast
+      ? [24, 24, 0, 0]
+      : [24, 24, 0, 0, -24, -24, -24],
     { clamp: true },
   );
 
