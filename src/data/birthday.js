@@ -15,9 +15,7 @@ export const dailyLetters = [
  ['2026-10-13', 'Morgen ist dein Geburtstag. Ich wäre so gern bei dir. Deshalb habe ich dir etwas gebaut, das auch von hier aus bei dir ankommen kann. Es steckt ziemlich viel von mir darin. Und noch viel mehr von dem, was du mir bedeutest.'],
 ].map(([date, text]) => ({ date, text }));
 export function availableLetters(date) { return dailyLetters.filter(letter => letter.date <= date); }
-export function nextCorner(state, corner, time) {
-  const sequence = ['tr','tl','tr','tl','tr','tl','tr','tl','tr','tl'];
-  if (state.index && time - state.started > 10000) state = { index: 0, started: 0 };
-  if (corner !== sequence[state.index]) return { index: 0, started: 0 };
-  return { index: state.index + 1, started: state.index ? state.started : time };
+export function nextCountdownTap(state, time) {
+  if (state.count && time - state.started > 6000) state = { count: 0, started: 0 };
+  return { count: state.count + 1, started: state.count ? state.started : time };
 }

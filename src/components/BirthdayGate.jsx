@@ -1,30 +1,22 @@
 import { useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { availableLetters, BIRTHDAY, berlinDate, nextCorner } from '../data/birthday';
+import { availableLetters, BIRTHDAY, berlinDate, nextCountdownTap } from '../data/birthday';
 import { readStore, writeStore } from './Shared';
 export function useBirthdayClock() {
  const [now, setNow] = useState(() => new Date());
  useEffect(() => { const id = setInterval(() => setNow(new Date()), 1000); return () => clearInterval(id); }, []);
  return { now, date: berlinDate(now) };
 }
-export function DeveloperUnlock({ onUnlock }) {
- const state = useRef({ index: 0, started: 0 });
- useEffect(() => {
-  function tap(e) {
-   if (e.button !== 0 || !e.isPrimary) return;
-   const w = window.innerWidth, size = 48;
-   const x = e.clientX < size ? 'l' : e.clientX > w-size ? 'r' : '';
-   const corner = e.clientY < size && x ? 't'+x : '';
-   state.current = nextCorner(state.current, corner, performance.now());
-   if (state.current.index === 10) {
-    try { sessionStorage.setItem('yael-developer', '1'); } catch { /* Optional. */ }
-    state.current = { index: 0, started: 0 }; onUnlock();
-   }
+export function useCountdownPreview(onUnlock) {
+ const state = useRef({ count: 0, started: 0 });
+ return function tap(event) {
+  if (event.button !== 0 || typeof onUnlock !== 'function') return;
+  state.current = nextCountdownTap(state.current, performance.now());
+  if (state.current.count === 10) {
+   try { sessionStorage.setItem('yael-developer', '1'); } catch { /* Optional. */ }
+   state.current = { count: 0, started: 0 }; onUnlock();
   }
-  window.addEventListener('pointerdown', tap, { passive: true });
-  return () => window.removeEventListener('pointerdown', tap);
- }, [onUnlock]);
- return null;
+ };
 }
 export function DailyLoveLetters({ date, archive = false }) {
  const letters = availableLetters(date);
@@ -46,9 +38,10 @@ export function DailyLoveLetters({ date, archive = false }) {
  </div>;
  return archive ? <details id="daily-archive" className="daily-archive"><summary>Die Tage vor deinem Geburtstag</summary>{content}</details> : content;
 }
-export default function BirthdayGate({ now, date }) {
+export default function BirthdayGate({ now, date, onUnlock }) {
+ const countdownTap = useCountdownPreview(onUnlock);
  const seconds = Math.max(0, Math.floor((new Date('2026-10-14T00:00:00+02:00') - now)/1000));
  const units = [[Math.floor(seconds/86400),'Tage'],[Math.floor(seconds/3600)%24,'Stunden'],[Math.floor(seconds/60)%60,'Minuten'],[seconds%60,'Sekunden']];
- return <main className="birthday-gate"><div className="gate-glow" aria-hidden="true"/><p className="eyebrow">Für Yael · 14. Oktober 2026</p><h1>Am 14. hast du das Warten hinter dir.</h1><p className="subtle">Dann siehst du, was dich hier erwartet.</p><div className="countdown" role="timer" aria-label={`Noch ${units.map(([n,l])=>`${n} ${l}`).join(', ')}`}>{units.map(([n,label])=><div key={label}><strong>{String(n).padStart(2,'0')}</strong><span>{label}</span></div>)}</div><DailyLoveLetters date={date}/><span className="fine-date">09.04.2026 — ∞</span></main>;
+ return <main className="birthday-gate"><div className="gate-glow" aria-hidden="true"/><p className="eyebrow">Für Yael · 14. Oktober 2026</p><h1>Am 14. hast du das Warten hinter dir.</h1><p className="subtle">Dann siehst du, was dich hier erwartet.</p><div className="countdown" onClick={countdownTap} style={{userSelect:'none',WebkitUserSelect:'none',touchAction:'manipulation'}} role="timer" aria-label={`Noch ${units.map(([n,l])=>`${n} ${l}`).join(', ')}`}>{units.map(([n,label])=><div key={label}><strong>{String(n).padStart(2,'0')}</strong><span>{label}</span></div>)}</div><DailyLoveLetters date={date}/><span className="fine-date">09.04.2026 — ∞</span></main>;
 }
 export { BIRTHDAY };

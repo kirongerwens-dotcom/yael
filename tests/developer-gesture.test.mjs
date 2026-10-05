@@ -2,28 +2,19 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {runInNewContext} from 'node:vm';
-import {nextCorner} from '../src/data/birthday.js';
-const sequence=['tr','tl','tr','tl','tr','tl','tr','tl','tr','tl'];
-const empty=()=>({index:0,started:0});
-function run(corners,start=1000){let state=empty();const progress=[];corners.forEach((corner,i)=>{state=nextCorner(state,corner,start+i*200);progress.push(state.index);});return {state,progress};}
-test('only the full ten alternating top-corner taps succeed, right first',()=>{const {progress,state}=run(sequence);assert.deepEqual(progress,[1,2,3,4,5,6,7,8,9,10]);assert.equal(state.index,10);assert.equal(sequence.filter(x=>x==='tr').length,5);assert.equal(sequence.filter(x=>x==='tl').length,5);});
-test('wrong order, either bottom corner, and ordinary content taps reset',()=>{for(const wrong of ['tr','br','bl','']){let state=run(['tr','tl','tr']).state;state=nextCorner(state,wrong,1700);assert.deepEqual(state,empty());assert.equal(nextCorner(state,'tl',1800).index,0);}assert.ok(!run(['tl',...sequence.slice(1)]).progress.includes(10));assert.ok(!run(['tl','tr','br','bl','tl','tr','br','bl']).progress.includes(10));});
-test('the existing ten-second window is unchanged and expiration starts fresh',()=>{let state=nextCorner(empty(),'tr',1000);state=nextCorner(state,'tl',11000);assert.equal(state.index,2);state=nextCorner(state,'tr',11001);assert.deepEqual(state,{index:1,started:11001});assert.deepEqual(nextCorner(run(['tr']).state,'tl',11001),empty());});
-test('normal tapping among content and corners does not accumulate a preview unlock',()=>{const normal=['','tr','','tl','','tr','','tl','br','bl','tr','tr','tl','','tr','','tl'];assert.ok(!run(normal).progress.includes(10));});
-
-test('actual hidden pointer handler uses only top corners, resets content taps, ignores scrolling, and preserves activation callback',()=>{
+import {nextCountdownTap} from '../src/data/birthday.js';
+function run(times){let state={count:0,started:0};let unlocked=false;for(const time of times){state=nextCountdownTap(state,time);if(state.count===10)unlocked=true;}return {state,unlocked};}
+test('ten taps within six seconds activate, but nine and ordinary single/double taps do not',()=>{assert.equal(run(Array.from({length:10},(_,i)=>1000+i*500)).unlocked,true);for(const count of [1,2,9])assert.equal(run(Array.from({length:count},(_,i)=>1000+i*500)).unlocked,false);assert.equal(run(Array.from({length:10},(_,i)=>1000+i*(6000/9))).unlocked,true);});
+test('ten taps beyond six seconds fail; the next tap begins a fresh sequence',()=>{const late=Array.from({length:10},(_,i)=>1000+i*700);const result=run(late);assert.equal(result.unlocked,false);assert.deepEqual(result.state,{count:1,started:7300});assert.equal(run([...late,...Array.from({length:9},(_,i)=>7500+i*200)]).unlocked,true);});
+test('the actual countdown handler preserves session activation and filters non-primary clicks',()=>{
  const source=readFileSync(new URL('../src/components/BirthdayGate.jsx',import.meta.url),'utf8');
- const component=source.slice(source.indexOf('export function DeveloperUnlock'),source.indexOf('export function DailyLoveLetters')).replace('export function','function');
- const listeners=new Map(),stored=new Map();let time=1000,unlocks=0;
- runInNewContext(component+'; DeveloperUnlock({onUnlock});',{
-  useRef:value=>({current:value}),useEffect:effect=>effect(),nextCorner,
-  window:{innerWidth:390,innerHeight:844,addEventListener:(name,handler)=>listeners.set(name,handler),removeEventListener:name=>listeners.delete(name)},
-  performance:{now:()=>time},sessionStorage:{setItem:(key,value)=>stored.set(key,value)},onUnlock:()=>unlocks++
- });
- assert.deepEqual([...listeners.keys()],['pointerdown']);
- const tap=(x,y)=>{time+=100;listeners.get('pointerdown')({button:0,isPrimary:true,clientX:x,clientY:y});};
- for(let i=0;i<20;i++)listeners.get('scroll')?.({});assert.equal(unlocks,0);
- tap(389,1);tap(1,1);tap(195,400);sequence.slice(2).forEach(c=>tap(c==='tr'?389:1,1));assert.equal(unlocks,0);
- tap(1,843);sequence.slice(0,9).forEach(c=>tap(c==='tr'?389:1,1));assert.equal(unlocks,0);
- tap(1,1);assert.equal(unlocks,1);assert.equal(stored.get('yael-developer'),'1');
+ const hook=source.slice(source.indexOf('export function useCountdownPreview'),source.indexOf('export function DailyLoveLetters')).replace('export function','function');
+ const stored=new Map();let time=1000,unlocks=0;
+ const tap=runInNewContext(hook+'; useCountdownPreview(onUnlock);',{useRef:value=>({current:value}),nextCountdownTap,performance:{now:()=>time},sessionStorage:{setItem:(k,v)=>stored.set(k,v)},onUnlock:()=>unlocks++});
+ for(let i=0;i<20;i++)tap({button:2});assert.equal(unlocks,0);
+ for(let i=0;i<9;i++){tap({button:0});time+=200;}assert.equal(unlocks,0);tap({button:0});assert.equal(unlocks,1);assert.equal(stored.get('yael-developer'),'1');
+ tap({button:0});assert.equal(unlocks,1);
+ assert.match(source,/className="countdown" onClick=\{countdownTap\}/);
+ assert.ok(!/DeveloperUnlock|nextCorner|clientX|clientY|addEventListener\('pointerdown'/.test(source));
+ const app=readFileSync(new URL('../src/App.jsx',import.meta.url),'utf8');assert.match(app,/excludeAnalytics\(\);setDeveloper\(true\)/);assert.match(app,/<BirthdayGate now=\{now\} date=\{date\} onUnlock=\{unlock\}\/>/);assert.match(app,/!developer && date < BIRTHDAY/);
 });

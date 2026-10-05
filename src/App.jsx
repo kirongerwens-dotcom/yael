@@ -14,7 +14,7 @@ import LoveReasons from "./components/LoveReasons";
 import NeedMe from "./components/NeedMe";
 import Future from "./components/Future";
 import LoveLetter from "./components/LoveLetter";
-import BirthdayGate, { DeveloperUnlock, DailyLoveLetters, useBirthdayClock, BIRTHDAY } from './components/BirthdayGate';
+import BirthdayGate, { DailyLoveLetters, useBirthdayClock, BIRTHDAY } from './components/BirthdayGate';
 import DistanceJourney, { JourneyClimax } from './components/DistanceJourney';
 import { Discoveries, HiddenHeart, SecretSection, Finale } from './components/Discoveries';
 import { readStore } from './components/Shared';
@@ -28,7 +28,7 @@ export default function App() {
   return (
     <>
     <Analytics developer={developer}/>
-    {!developer && date < BIRTHDAY ? <><DeveloperUnlock onUnlock={unlock}/><BirthdayGate now={now} date={date}/></> : <Discoveries>
+    {!developer && date < BIRTHDAY ? <BirthdayGate now={now} date={date} onUnlock={unlock}/> : <Discoveries>
       <a className="skip-link" href="#beginn">
         Zum Geschenk
       </a>
