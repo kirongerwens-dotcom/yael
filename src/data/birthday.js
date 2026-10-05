@@ -16,7 +16,7 @@ export const dailyLetters = [
 ].map(([date, text]) => ({ date, text }));
 export function availableLetters(date) { return dailyLetters.filter(letter => letter.date <= date); }
 export function nextCorner(state, corner, time) {
-  const sequence = ['tl','tr','br','bl','tl','tr','br','bl'];
+  const sequence = ['tr','tl','tr','tl','tr','tl','tr','tl','tr','tl'];
   if (state.index && time - state.started > 10000) state = { index: 0, started: 0 };
   if (corner !== sequence[state.index]) return { index: 0, started: 0 };
   return { index: state.index + 1, started: state.index ? state.started : time };

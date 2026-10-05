@@ -12,12 +12,11 @@ export function DeveloperUnlock({ onUnlock }) {
  useEffect(() => {
   function tap(e) {
    if (e.button !== 0 || !e.isPrimary) return;
-   const w = window.innerWidth, h = window.innerHeight, size = 48;
+   const w = window.innerWidth, size = 48;
    const x = e.clientX < size ? 'l' : e.clientX > w-size ? 'r' : '';
-   const y = e.clientY < size ? 't' : e.clientY > h-size ? 'b' : '';
-   if (!x || !y) return;
-   state.current = nextCorner(state.current, y+x, performance.now());
-   if (state.current.index === 8) {
+   const corner = e.clientY < size && x ? 't'+x : '';
+   state.current = nextCorner(state.current, corner, performance.now());
+   if (state.current.index === 10) {
     try { sessionStorage.setItem('yael-developer', '1'); } catch { /* Optional. */ }
     state.current = { index: 0, started: 0 }; onUnlock();
    }
