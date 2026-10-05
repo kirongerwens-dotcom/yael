@@ -211,7 +211,9 @@ export function Eyes() {
     </Section>
   );
 }
+import { useDiscovery } from "./Discoveries";
 export function SmallThings() {
+  const {discover}=useDiscovery();
   const [secret, setSecret] = useState(null);
   const [cats, setCats] = useState(() => readStore("yael-cats", 0));
   const [solving, setSolving] = useState(false);
@@ -219,11 +221,13 @@ export function SmallThings() {
     if (!solving) return;
     const timer = setTimeout(() => {
       setSecret("Lösung gefunden: Schlafen.");
+      discover("sleep");
       setSolving(false);
     }, 1200);
     return () => clearTimeout(timer);
-  }, [solving]);
+  }, [solving, discover]);
   function findCat() {
+    discover("cat");
     const n = cats + 1;
     setCats(n);
     writeStore("yael-cats", n);
@@ -302,9 +306,9 @@ export function SmallThings() {
         <button
           className="tiny-cow"
           onClick={() =>
-            setSecret(
+            (discover("cow"), setSecret(
               "Eine Mini-Kuh. Einfach so. Die Babyziege steht auf der Warteliste.",
-            )
+            ))
           }
           aria-label="Eine kleine Mini-Kuh entdecken"
         >
@@ -319,7 +323,7 @@ export function SmallThings() {
         <button
           aria-label="Roblox ausprobieren"
           onClick={() =>
-            setSecret("Diese Funktion wurde aus Qualitätsgründen entfernt.")
+            (discover("roblox"), setSecret("Diese Funktion wurde aus Qualitätsgründen entfernt."))
           }
         >
           <Gamepad2 size={18} />

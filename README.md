@@ -1,46 +1,53 @@
 # Für Yael
 
-Persönliches Geburtstagsgeschenk, React + Vite. Keine privaten Fotos, kein Backend und kein Ton. Die Texte und alle sichtbaren Bedienelemente sind deutsch.
+Die bestehende React/Vite-Website wurde erweitert. Alle persönlichen Texte in `src/data/messages.js` sind bytegleich erhalten: zwölf Gründe, 56 Nachrichten und neun Briefabsätze. Alle ursprünglichen Abschnitte, Animationen und Insider bleiben vorhanden.
 
-## Lokal
+## Übernehmen und starten
 
-Node.js 22 oder neuer installieren, dann im Projekt:
+Das ZIP entpacken. Den Inhalt des Ordners `yael` in den vorhandenen Projektordner kopieren und die gleichnamigen Dateien ersetzen. Vorher deine aktuelle Version sichern. `node_modules` und `dist` sind absichtlich nicht enthalten.
 
 ```sh
 npm ci
-npm run dev
+npm run dev -- --host 127.0.0.1
 ```
 
-Die angezeigte lokale Adresse mit `/yael/` öffnen.
+Die angezeigte Adresse mit `/yael/` öffnen. Für ein iPhone im gleichen WLAN stattdessen `npm run dev` starten und die LAN-Adresse des Macs mit `/yael/` öffnen.
 
 ```sh
 npm run lint
 npm run build
-npm run preview
+npm run preview -- --host 127.0.0.1
 ```
 
-## GitHub Pages
+Vites vorhandenes `base: '/yael/'` bleibt unverändert. Im Upload war kein `.github`-Ordner vorhanden. Der beiliegende `deploy.yml` ergänzt den in der ursprünglichen README beschriebenen Pages-Workflow. Wenn dein Repository bereits einen funktionierenden Pages-Workflow besitzt, behalte diesen und füge keinen zweiten hinzu. GitHub Pages muss unter Settings → Pages auf GitHub Actions eingestellt sein. Hier wurde nichts auf GitHub gepusht oder veröffentlicht.
 
-1. Diese Projektdateien ins Repository `kirongerwens-dotcom/yael` übernehmen, vorhandene Änderungen vorher sichern.
-2. Auf Branch `main` committen und pushen.
-3. Auf GitHub unter **Settings → Pages → Build and deployment → Source** die Option **GitHub Actions** auswählen.
-4. Unter **Actions** den Workflow „Website veröffentlichen“ prüfen. Nach erfolgreichem Lauf erscheint die Website unter `https://kirongerwens-dotcom.github.io/yael/`.
+## Ergänzungen
 
-Vites `base` ist auf `/yael/` eingestellt. Der Workflow prüft Lint und Build, bevor er veröffentlicht. Eine eigene Domain ist nicht erforderlich.
+- Countdown bis 14.10.2026, 00:00 Uhr Europe/Berlin. Neue Mini-Briefe vom 4. bis 13. Oktober, bisherige Briefe bleiben auswählbar. Danach bleibt die Seite zugänglich und das Archiv erscheint unten als aufklappbare Erinnerung.
+- Unsichtbare Testfreischaltung: innerhalb von zehn Sekunden links oben, rechts oben, rechts unten, links unten und dieselbe Runde noch einmal. Die 48-Pixel-Ecken beobachten Pointer-Ereignisse, ohne andere Bedienelemente zu blockieren. Falsche Ecke oder Zeitüberschreitung setzt zurück. Die Freischaltung bleibt nur in sessionStorage; der normale Entdeckungsfortschritt wird davon nicht verändert.
+- Kleine SVG-Karte, symbolische Anfangsentfernung 142 km. Die Strecke verkürzt sich bis zur Sequenz direkt vor dem Brief. Die Karte vergrößert sich; beide Herzen treffen sich vor den beiden neuen Sätzen. Normales Scrollen bleibt immer möglich, ohne Scrollsperre.
+- Fünf kleine Herzen, lokaler Fortschritt, geheime Umarmungsnachricht nach dem fünften Fund. Bestehende Insider bleiben erhalten.
+- Zwei versteckte 750-ms-Interaktionen: das kleine feste Datum oben im Intro und „Deal.“ im Reiseabschnitt. Bewegung über zehn Pixel bricht ab, damit Scrollen nicht aus Versehen auslöst.
+- Briefpapier kommt nach dem Öffnen des Umschlags hervor, Kirons Signatur wird als SVG geschrieben. Der ursprüngliche Brieftext bleibt erhalten.
+- Ergänzte konkrete Zukunftsmomente, „Öffnen, wenn …“-Darstellung der vorhandenen sieben Nachrichtenkategorien, einfache Geburtstags-Finale und kleine Überraschung beim Weiterscrollen.
+- Wiederkehrende Besucher können nach dem ersten Öffnen des Briefs direkt zu „Unser Anfang“ springen. Das Intro wird nicht automatisch übersprungen. Reduzierte Bewegung zeigt eine lesbare statische Alternative.
 
-## Aufbau
+## Neue Texte / Werte
 
-- `src/components/Intro.jsx`: scrollgesteuertes Intro, zugängliche Alternative bei reduzierter Bewegung.
-- `src/components/Story.jsx`: Anfang, Entfernung, Treffen, digitale Tage, Augen und kleine Insider.
-- `src/components/LoveReasons.jsx`: zwölf interaktive Gründe.
-- `src/components/NeedMe.jsx`: sieben Kategorien, jeweils acht Texte, lokale Historie ohne Wiederholung innerhalb eines Durchgangs.
-- `src/components/Future.jsx`: Reiseziele und gemeinsame Wünsche.
-- `src/components/LoveLetter.jsx`: Brief und Abschluss, Datum in Europe/Berlin.
-- `src/data/messages.js`: bearbeitbare Gründe, Nachrichten und Liebesbrief.
-- `src/style.css`: Gestaltung, responsive Regeln und reduzierte Bewegung.
+Neue Mini-Briefe: `src/data/birthday.js`. Neue Überraschungen und Finale: `src/components/Discoveries.jsx`. Ergänzte Zukunftswünsche: `src/components/Future.jsx`.
 
-Die Seite ist vor dem Geburtstag vollständig zugänglich. Der Schlusshinweis ändert sich am 14.10.2026 und danach. Lokaler Speicher enthält nur entdeckte Elemente und Nachrichtenindizes. Die Seite bleibt ohne Speicher funktionsfähig. GitHub Pages ist öffentlich; `noindex` ist keine Zugangssperre.
+Im gelieferten Intro gab es keine Zeitstatistik. Ergänzt sind 176 Tage × 3 Stunden = 528 Stunden = 31.680 Minuten = 1.900.800 Sekunden, mit animiertem Zähler. Das ist eine Darstellung deiner genannten täglichen Zeit, keine gemessene Programmierzeit. Die Kartenkilometer sind eine stilisierte Erzählung und keine Navigationsberechnung.
 
-## Prüfung dieser Version
+Die vorhandene Rosen/Lilien-Nachricht erwähnt weiterhin „liegt manches gerade vor dir“, da persönliche Texte nicht überschrieben wurden. Wenn du am Geburtstag nicht dort bist und nichts vor ihr liegt, kannst du diesen Satz in `Story.jsx` selbst anpassen.
 
-Produktionsbuild und ESLint geprüft. Chromium-Prüfung bei 320, 375, 390, 768 und 1440 Pixel Breite: kein horizontaler Dokumentüberlauf und keine JavaScript-Laufzeitfehler. Zwölf Gründe, alle sieben Nachrichtenkategorien, Brief, Schlafen- und Roblox-Interaktion sowie der versteckte Mehrfachknopf geprüft. Reduzierte Bewegung geprüft. Ein Test auf echtem iPhone mit Safari steht noch aus.
+## Prüfung
+
+ESLint ohne Fehler oder Warnungen und Vite-Produktionsbuild bestanden. Separat geprüft: Berliner Mitternacht, Freischaltungen 4.–14. Oktober, keine früher angezeigten Zukunftsbriefe, vergangene Briefe, Eckensequenz, falsche Ecke und Zeitüberschreitung, Inhaltszahlen und unveränderter Originaltext. React-Serverrendering geprüft für Countdown, Geburtstag, spätere Besuche, Sessionfreischaltung und gespeicherte fünf Herzen.
+
+Eine visuelle Browserprüfung war in der Ausführungsumgebung blockiert. iPhone Safari, schmale Layouts, die tatsächlich abgespielten Animationen, Touchgesten und Reload-Verhalten müssen noch im Browser geprüft werden. CSS verwendet svh, Safe Areas und eine Alternative für reduzierte Bewegung; dies ersetzt keinen Gerätetest.
+
+Für den Gerätetest: Countdown ansehen, acht Ecken tippen, scrollen bis zum Brief, Brief öffnen, Herzen suchen, neu laden, Datum/Deal lange drücken und das Finale weiterscrollen. Auf einem neuen Tab oder nach Entfernen von `yael-developer` aus sessionStorage wird wieder die normale Datumssperre verwendet.
+
+## Zusätzliche private Analytics
+
+Siehe `ANALYTICS_SETUP.md`. Ein kleiner inline gestalteter Einwilligungsabschnitt startet die Messung ausschließlich nach „Ja ♡“. „Lieber nicht“ lässt das ganze Geschenk nutzbar. Die gespeicherte Entscheidung kann unter Datenschutz geändert werden. Das separate Dashboard unter `/yael/admin.html` verlangt Google/Firebase Authentication und den serverseitigen Admin-Claim. Firebase-Konfiguration, Regeln, Index, TTL und Kontaktangaben müssen vor Veröffentlichung eingerichtet werden. Alle Geburtstagserweiterungen bleiben erhalten.

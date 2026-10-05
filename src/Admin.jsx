@@ -1,0 +1,40 @@
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { configured } from './analytics/config';
+import { summarize, SECTION_LABELS, eventLabel } from './analytics/dashboard';
+const dateFormat=new Intl.DateTimeFormat('de-DE',{timeZone:'Europe/Berlin',dateStyle:'medium',timeStyle:'medium'});
+function date(v){return v?dateFormat.format(v.toDate?v.toDate():new Date(v)):'—';}
+function duration(s){return s==null?'—':`${Math.floor(s/60)} Min ${s%60} s`;}
+const flags=[['loveLetterReached','Love Letter erreicht'],['loveLetterOpened','Love Letter geöffnet'],['mapCompleted','Kartenreise abgeschlossen'],['allHeartsFound','Alle fünf Herzen gefunden'],['secretUnlocked','Secret Section freigeschaltet'],['finaleReached','Finale erreicht'],['postFinaleReached','Post-Finale erreicht']];
+function Visit({v}){const sections=v.sectionsReached||[];return <details className="visit"><summary><span>{date(v.startedAt)}</span><span>{duration(v.activeSeconds)} · {v.maxScrollPercent}% Scroll · {v.heartsDiscovered}/5 Herzen</span></summary><div className="visit-overview">Abschnitte: {sections.map(s=>SECTION_LABELS[s]||s).join(', ')||'—'}<br/>Tagesbriefe: {v.dailyLettersOpened?.join(', ')||'—'}<br/>Love Reasons geöffnet: {v.loveReasonsOpened?.join(', ')||'—'}<br/>Open When / NeedMe geöffnet (Kategorie:Nachricht): {v.openWhenOpened?.join(', ')||'—'}</div><dl><dt>Sitzungskennung</dt><dd>{v.sessionId}</dd><dt>Letzte aktive Zeit</dt><dd>{date(v.lastActivityAtMs)}</dd><dt>Letztes Server-Lebenszeichen</dt><dd>{date(v.lastSeenAt)}</dd><dt>Ansicht</dt><dd>{v.initialMode} → {v.currentMode}</dd><dt>Kartenfortschritt</dt><dd>{v.mapProgressPercent}%</dd><dt>Love Letter aktiv geöffnet angesehen</dt><dd>{duration(v.loveLetterActiveSeconds)}</dd><dt>Love Reasons erreicht / interagiert</dt><dd>{sections.includes('liebe')?'Ja':'Nicht erfasst'} / {v.loveReasonsOpened?.length?'Ja':'Nicht erfasst'}</dd><dt>Messages / NeedMe erreicht / interagiert</dt><dd>{sections.includes('brauchst')?'Ja':'Nicht erfasst'} / {v.openWhenOpened?.length?'Ja':'Nicht erfasst'}</dd><dt>Future erreicht</dt><dd>{sections.includes('ueberall')||sections.includes('mitdir')?'Ja':'Nicht erfasst'}</dd><dt>Consent-Version</dt><dd>{v.consentVersion}</dd></dl><ul>{flags.map(([key,label])=><li key={key}>{label}: {v[key]?'Ja':'Nicht erfasst'}</li>)}</ul><h3>Ungefähre aktive Abschnittszeiten</h3><ul className="section-times">{Object.entries(v.sectionActiveSeconds||{}).filter(([key])=>sections.includes(key)).map(([key,seconds])=><li key={key}>{SECTION_LABELS[key]||key}: {duration(seconds)}</li>)}</ul><h3>Aufgezeichneter Weg</h3><ol className="event-log">{(v.events||[]).map((e,i)=><li key={i}>{date(e.atMs)} · {eventLabel(e)}</li>)}</ol>{v.events?.length===256&&<p className="tiny">Ereignislimit erreicht; spätere Details können fehlen.</p>}</details>;}
+export default function Admin(){
+ const [status,setStatus]=useState(configured()?'Login erforderlich.':'Firebase ist noch nicht konfiguriert.'),[authorized,setAuthorized]=useState(false),[visits,setVisits]=useState([]),[busy,setBusy]=useState(false);
+ const client=useRef(null),generation=useRef(0);
+ const load=useCallback(async()=>{
+  if(!client.current)return;const token=generation.current;setBusy(true);
+  try{
+   const fs=await import('firebase/firestore/lite'),all=[];
+   const base=fs.query(fs.collection(client.current.db,'yaelVisits'),fs.where('excluded','==',false),fs.where('consented','==',true),fs.orderBy('startedAt','desc'));
+   let cursor=null;
+   for(;;){const rows=await fs.getDocs(cursor?fs.query(base,fs.startAfter(cursor),fs.limit(200)):fs.query(base,fs.limit(200)));if(token!==generation.current)return;all.push(...rows.docs.map(d=>({id:d.id,...d.data()})));if(rows.size<200)break;cursor=rows.docs.at(-1);}
+   setVisits(all);setStatus('Einwilligende Sessions. Developer Preview und widerrufene laufende Sessions sind ausgeschlossen.');
+  }catch(error){if(token===generation.current)setStatus(error.code==='permission-denied'?'Keine Leseberechtigung. Regeln und Admin-Claim prüfen.':'Daten konnten nicht geladen werden. Verbindung, Index und Firebase-Konfiguration prüfen.');}
+  finally{if(token===generation.current)setBusy(false);}
+ },[]);
+ useEffect(()=>{
+  if(!configured())return;let disposed=false,unsubscribe;
+  const invalidate=()=>{generation.current++;};
+  void Promise.all([import('./analytics/firebaseClient'),import('firebase/auth')]).then(([fb,auth])=>{
+   if(disposed)return;client.current=fb.getFirebaseClient();unsubscribe=auth.onAuthStateChanged(client.current.auth,async user=>{
+    const token=++generation.current;setAuthorized(false);setVisits([]);setBusy(false);
+    if(!user){setStatus('Login erforderlich.');return;}
+    try{const claims=await user.getIdTokenResult(true);if(disposed||token!==generation.current)return;if(claims.claims.yaelAnalyticsAdmin!==true||user.isAnonymous){setStatus(`Keine Adminfreigabe. Firebase UID: ${user.uid}`);return;}setAuthorized(true);void load();}catch{if(!disposed&&token===generation.current)setStatus('Anmeldung konnte nicht geprüft werden.');}
+   });
+  }).catch(()=>setStatus('Firebase konnte nicht initialisiert werden.'));
+  return()=>{disposed=true;invalidate();unsubscribe?.();};
+ },[load]);
+ async function login(){try{const auth=await import('firebase/auth'),fb=await import('./analytics/firebaseClient');client.current=fb.getFirebaseClient();await auth.signInWithPopup(client.current.auth,new auth.GoogleAuthProvider(),auth.browserPopupRedirectResolver);}catch{setStatus('Google-Anmeldung fehlgeschlagen. Provider, autorisierte Domain und Popup-Freigabe prüfen.');}}
+ async function logout(){generation.current++;setAuthorized(false);setVisits([]);const auth=await import('firebase/auth');await auth.signOut(client.current.auth);}
+ const stats=summarize(visits),metrics=[['Einwilligende Visits insgesamt',stats.total],['Visits heute',stats.today],['Visits letzte 7 Kalendertage',stats.week],['Letzter Visit',date(stats.last)],['Ø aktive Dauer',duration(stats.average)],['Längste aktive Dauer',duration(stats.longest)],['Ø maximaler Scrollfortschritt',`${stats.scroll}%`],['Love Letter geöffnet',stats.letterOpens],['Ø aktive Love Letter Lesezeit',duration(stats.letterAverage)],['Kartenreisen abgeschlossen',stats.map],['Herzen entdeckt',stats.hearts],['Secret Section freigeschaltet',stats.secret],['Finale erreicht',stats.finale],['Post-Finale erreicht',stats.post]];
+ const peak=Math.max(1,...stats.chart.map(d=>d.count));
+ return <main className="admin-page"><header><p className="eyebrow">Private analytics</p><h1>Visits & Sessions</h1><p className="subtle">Anonyme Sessions, keine identifizierten Personen. Separate Visits werden nicht miteinander verknüpft.</p></header><p role="status" className="admin-status">{status}</p>{!authorized?<button disabled={!configured()} className="admin-button" onClick={login}>Mit Google anmelden</button>:<><div className="admin-toolbar"><button disabled={busy} onClick={load}>{busy?'Lädt …':'Aktualisieren'}</button><button onClick={logout}>Abmelden</button></div><p className="tiny">Europe/Berlin · Übersicht über alle aktuell gespeicherten einwilligenden Visits (30-Tage-Aufbewahrung). Aktive Zeit bedeutet sichtbarer Tab, keine nachgewiesene Aufmerksamkeit. Abschnittszeit wird dem überwiegend sichtbaren Abschnitt zugeordnet; andere sichtbare Elemente können überlappen. Ø Briefzeit pro Session mit Brieföffnung.</p><div className="admin-metrics">{metrics.map(([label,value])=><div className="admin-metric" key={label}><span>{label}</span><strong>{value}</strong></div>)}</div><h2>Visits im Zeitverlauf</h2><div className="visits-chart" role="img" aria-label={stats.chart.map(d=>`${d.day}: ${d.count} Visits`).join('; ')}>{stats.chart.map(d=><div key={d.day}><b>{d.count}</b><i style={{height:`${d.count/peak*100}%`}}/><small>{d.day.slice(8)}.{d.day.slice(5,7)}.</small></div>)}</div><h2>Einzelne Sessions</h2><div className="visits">{visits.map(v=><Visit key={v.id} v={v}/>)}</div>{!visits.length&&<p className="subtle">Noch keine einwilligenden Visits erfasst.</p>}</>}</main>;
+}

@@ -1,3 +1,4 @@
+import { track } from "../analytics/runtime";
 import { useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import { Section, Reveal, Modal, readStore, writeStore } from "./Shared";
@@ -7,6 +8,7 @@ export default function LoveReasons() {
   const [found, setFound] = useState(() => readStore("yael-reasons", []));
   const reduced = useReducedMotion();
   function open(i) {
+    track("love_reason_opened",String(i+1));
     setSelected(i);
     const next = [...new Set([...found, i])];
     setFound(next);

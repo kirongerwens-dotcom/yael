@@ -1,0 +1,14 @@
+export const SECTION_LABELS={intro:'Website / Intro',beginn:'Story',entfernung:'Zwei Städte',treffen:'Treffen',tage:'Unser Alltag',liebe:'Love Reasons',augen:'Deine Augen',kleinigkeiten:'Kleine Dinge',brauchst:'Messages / Open When / NeedMe',ueberall:'Future',mitdir:'Zukunft mit dir','journey-climax':'Kartenreise',brief:'Love Letter','secret-surprise':'Secret Section','daily-archive':'Tagesbriefe',finale:'Finale','post-finale':'Post-Finale'};
+export const berlinDay=new Intl.DateTimeFormat('sv-SE',{timeZone:'Europe/Berlin',year:'numeric',month:'2-digit',day:'2-digit'});
+export function timestamp(value){return value?.toMillis?value.toMillis():value instanceof Date?value.getTime():Number(value);}
+export function summarize(visits,now=Date.now()){
+ const day=berlinDay.format(now),[year,month,date]=day.split('-').map(Number),last7=Array.from({length:7},(_,i)=>new Date(Date.UTC(year,month-1,date-(6-i),12)).toISOString().slice(0,10));
+ const sum=k=>visits.reduce((n,v)=>n+(v[k]||0),0),count=k=>visits.filter(v=>v[k]).length;
+ const opened=visits.filter(v=>v.loveLetterOpened);
+ return {total:visits.length,today:visits.filter(v=>berlinDay.format(timestamp(v.startedAt))===day).length,week:visits.filter(v=>last7.includes(berlinDay.format(timestamp(v.startedAt)))).length,last:visits[0]?.startedAt,average:visits.length?Math.round(sum('activeSeconds')/visits.length):0,longest:Math.max(0,...visits.map(v=>v.activeSeconds||0)),scroll:visits.length?Math.round(sum('maxScrollPercent')/visits.length):0,letterOpens:opened.length,letterAverage:opened.length?Math.round(opened.reduce((n,v)=>n+(v.loveLetterActiveSeconds||0),0)/opened.length):0,map:count('mapCompleted'),hearts:sum('heartsDiscovered'),secret:count('secretUnlocked'),finale:count('finaleReached'),post:count('postFinaleReached'),chart:last7.map(day=>({day,count:visits.filter(v=>berlinDay.format(timestamp(v.startedAt))===day).length}))};
+}
+export function eventLabel(e){
+ const labels={session_started:'Website geöffnet (nach Zustimmung)',daily_letter_opened:'Tagesbrief geöffnet',love_reason_opened:'Love Reason geöffnet',open_when_opened:'Open When geöffnet',love_letter_opened:'Love Letter geöffnet',love_letter_visible_open:'Love Letter bereits geöffnet sichtbar',love_letter_closed:'Love Letter geschlossen',map_completed:'Kartenreise: 0 km erreicht',heart_found:'Herz entdeckt',secret_unlocked:'Secret Section freigeschaltet',secret_available:'Freigeschaltete Secret Section erreicht',finale_reached:'Finale erreicht',post_finale_reached:'Post-Finale erreicht',experience_unlocked:'Geburtstagsseite freigeschaltet'};
+ if(['section_reached','section_entered','section_left'].includes(e.name))return `${SECTION_LABELS[e.value]||e.value} ${e.name==='section_left'?'verlassen':e.name==='section_entered'?'angesehen':'erreicht'}`;
+ return `${labels[e.name]||e.name}${e.value?` · ${e.value}`:''}`;
+}

@@ -1,6 +1,11 @@
 import { useState } from "react";
 import { Section, Reveal } from "./Shared";
+import { LongPress } from "./Discoveries";
 const dreams = [
+  "mit dir Sushi essen und noch etwas nachbestellen.",
+  "mit dir Golf ausprobieren, ganz ohne Druck.",
+  "mit dir Kakao machen und Plätzchen backen.",
+  "mit dir einen gemütlichen Tag in der Weihnachtszeit verbringen.",
   "mit dir ans Meer.",
   "mit dir nachts irgendwo sitzen und viel zu lange reden.",
   "mit dir reisen.",
@@ -51,7 +56,7 @@ export default function Future() {
         </div>
         <Reveal>
           <p className="everywhere">Überall.</p>
-          <p className="deal">Deal.</p>
+          <LongPress id="future-secret" message="Überall darf auch einfach die nächste Bank sein. Solange du neben mir sitzt."><p className="deal">Deal.</p></LongPress>
         </Reveal>
       </Section>
       <Section id="mitdir" number="10" title="Ohne großen Plan" light>
@@ -65,7 +70,7 @@ export default function Future() {
         <div className="dreams">
           {dreams.map((d, i) => (
             <Reveal key={d} className="dream">
-              <span>0{i + 1}</span>
+              <span>{String(i + 1).padStart(2,"0")}</span>
               <p>{d}</p>
             </Reveal>
           ))}

@@ -1,0 +1,23 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "yaelVisits",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "excluded",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "consented",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "startedAt",
+          "order": "DESCENDING"
+        }
+      ]
+    }
+  ],
+  "fieldOverrides": []
+}

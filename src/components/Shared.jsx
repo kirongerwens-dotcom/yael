@@ -22,9 +22,10 @@ export function Section({
   children,
   light = false,
   className = "",
+  ...attributes
 }) {
   return (
-    <section id={id} className={`chapter ${light ? "light" : ""} ${className}`}>
+    <section {...attributes} id={id} className={`chapter ${light ? "light" : ""} ${className}`}>
       <div className="section-inner">
         <Reveal>
           <p className="eyebrow">

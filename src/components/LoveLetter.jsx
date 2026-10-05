@@ -1,8 +1,13 @@
+import { motion, useReducedMotion } from "framer-motion";
+import { useDiscovery } from "./Discoveries";
+import { track } from "../analytics/runtime";
 import { useState } from "react";
 import { Mail, Heart } from "lucide-react";
 import { Section, Reveal, readStore, writeStore } from "./Shared";
 import { letter } from "../data/messages";
 export default function LoveLetter() {
+  const {discover}=useDiscovery();
+  const reduced=useReducedMotion();
   const [open, setOpen] = useState(false);
   const [presses, setPresses] = useState(0);
   const [returning] = useState(() => readStore("yael-visited", false));
@@ -12,6 +17,7 @@ export default function LoveLetter() {
   const birthday = now === "2026-10-14";
   const after = now > "2026-10-14";
   function openLetter() {
+    track(open?"love_letter_closed":"love_letter_opened");
     setOpen(!open);
     writeStore("yael-visited", true);
   }
@@ -25,6 +31,7 @@ export default function LoveLetter() {
   return (
     <Section
       id="brief"
+      data-letter-open={open}
       number="11"
       title="Nur noch etwas"
       className="letter-section"
@@ -48,7 +55,7 @@ export default function LoveLetter() {
         </span>
       </button>
       {open && (
-        <article id="liebesbrief" className="letter-paper">
+        <motion.article id="liebesbrief" className="letter-paper" initial={reduced?false:{opacity:0,y:60,scale:0.97}} animate={{opacity:1,y:0,scale:1}} transition={{duration:0.9,delay:0.3}}>
           {letter.map((p, i) => (
             <p
               key={i}
@@ -63,7 +70,8 @@ export default function LoveLetter() {
               {p}
             </p>
           ))}
-        </article>
+        <svg className="written-signature" viewBox="0 0 240 70" role="img" aria-label="Kiron"><motion.path d="M20 55L35 10M28 35L65 12M28 35Q48 40 61 58M74 35L69 56M78 22L79 23M85 55L94 33Q108 28 107 38M113 43Q114 27 128 32Q145 36 134 52Q117 65 113 43M143 56L154 33L149 51Q170 20 177 37L173 55Q190 66 212 47" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" initial={{pathLength:reduced?1:0}} whileInView={{pathLength:1}} viewport={{once:true}} transition={{duration:2}}/></svg>
+        </motion.article>
       )}
       <div className="ending">
         <Reveal>
@@ -96,7 +104,7 @@ export default function LoveLetter() {
         {returning && <p className="tiny">Schön, dass du wieder da bist.</p>}
         <button
           className="forbidden"
-          onClick={() => setPresses(Math.min(4, presses + 1))}
+          onClick={() => {setPresses(Math.min(4, presses + 1)); if(presses>=3)discover("forbidden");}}
         >
           {replies[presses]}
         </button>

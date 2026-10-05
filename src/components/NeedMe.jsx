@@ -1,3 +1,4 @@
+import { track } from "../analytics/runtime";
 import { useState } from "react";
 import { Heart } from "lucide-react";
 import { messages } from "../data/messages";
@@ -19,6 +20,7 @@ export default function NeedMe() {
       ...history,
       [category]: [...used, index],
     });
+    track("open_when_opened",`${Object.keys(messages).indexOf(category)}:${index}`);
     setCurrent({ category, text: list[index] });
   }
   return (
@@ -44,7 +46,7 @@ export default function NeedMe() {
         {Object.keys(messages).map((label, i) => (
           <button onClick={() => open(label)} key={label}>
             <span className="option-number">0{i + 1}</span>
-            {label}
+            <span><small className="open-when">Öffnen, wenn …</small>{label}</span>
             <span className="option-dot" />
           </button>
         ))}

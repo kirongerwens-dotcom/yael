@@ -1,4 +1,6 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
+import Analytics from "./components/Analytics";
+import { excludeAnalytics } from "./analytics/runtime";
 import Intro from "./components/Intro";
 import {
   RelationshipStart,
@@ -12,14 +14,27 @@ import LoveReasons from "./components/LoveReasons";
 import NeedMe from "./components/NeedMe";
 import Future from "./components/Future";
 import LoveLetter from "./components/LoveLetter";
+import BirthdayGate, { DeveloperUnlock, DailyLoveLetters, useBirthdayClock, BIRTHDAY } from './components/BirthdayGate';
+import DistanceJourney, { JourneyClimax } from './components/DistanceJourney';
+import { Discoveries, HiddenHeart, SecretSection, Finale } from './components/Discoveries';
+import { readStore } from './components/Shared';
 export default function App() {
+  const {now,date}=useBirthdayClock();
+  const [developer,setDeveloper]=useState(()=>{try{return sessionStorage.getItem('yael-developer')==='1';}catch{return false;}});
+  const unlock=useCallback(()=>{excludeAnalytics();setDeveloper(true);},[]);
+  const [returning]=useState(()=>readStore('yael-visited',false));
   const [menu, setMenu] = useState(false);
+
   return (
     <>
+    <Analytics developer={developer}/>
+    {!developer && date < BIRTHDAY ? <><DeveloperUnlock onUnlock={unlock}/><BirthdayGate now={now} date={date}/></> : <Discoveries>
       <a className="skip-link" href="#beginn">
         Zum Geschenk
       </a>
-      <main>
+      <main className={date===BIRTHDAY ? "birthday-mode" : ""}>
+        <DistanceJourney/>
+        {returning && <a className="return-link" href="#beginn">Wieder hier? Direkt zu uns ↓</a>}
         <Intro />
         <div className="chapter-nav">
           <button
@@ -45,17 +60,22 @@ export default function App() {
             </nav>
           )}
         </div>
-        <RelationshipStart />
+        <RelationshipStart /><div className="heart-location"><HiddenHeart id={1}/></div>
         <Distance />
         <TwoMeetings />
-        <DigitalDays />
+        <DigitalDays /><div className="heart-location"><HiddenHeart id={2}/></div>
         <LoveReasons />
         <Eyes />
-        <SmallThings />
+        <SmallThings /><div className="heart-location"><HiddenHeart id={3}/></div>
         <NeedMe />
-        <Future />
-        <LoveLetter />
+        <Future /><div className="heart-location"><HiddenHeart id={4}/></div>
+        <JourneyClimax />
+        <LoveLetter /><div className="heart-location"><HiddenHeart id={5}/></div>
+        <SecretSection />
+        <DailyLoveLetters date={date} archive/>
+        <Finale />
       </main>
+    </Discoveries>}
     </>
   );
 }
