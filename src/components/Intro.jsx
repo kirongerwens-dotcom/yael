@@ -40,7 +40,7 @@ function Frame({ index, progress, text, reduced }) {
   return (
     <motion.div
       style={reduced ? {} : { opacity, y, pointerEvents }}
-      className={`intro-frame ${reduced ? "static-frame" : ""}`}
+      className={`intro-frame ${index === 0 ? "intro-opening-frame" : text === "investment" ? "intro-investment-frame" : ""} ${reduced ? "static-frame" : ""}`}
     >
       <p className="eyebrow">
         {index === 0
@@ -52,7 +52,7 @@ function Frame({ index, progress, text, reduced }) {
       {text === "investment" ? <Investment progress={progress} reduced={reduced}/> : <h1>{text}</h1>}
       {index === 0 && (
         <a className="scroll-hint" href="#beginn">
-          Scroll langsam weiter <span>↓</span>
+          <span className="intro-scroll-text">Scroll langsam weiter</span> <span className="intro-scroll-arrow">↓</span>
         </a>
       )}
       {index === lines.length - 1 && <span className="fine-date">09.04.2026 — ∞</span>}
@@ -66,6 +66,12 @@ export default function Intro() {
     offset: ["start start", "end end"],
   });
   const reduced = useReducedMotion();
+  const [timeLayoutActive, setTimeLayoutActive] = useState(false);
+  useEffect(() => {
+    const update = value => setTimeLayoutActive(value >= 5.75 / lines.length && value <= 7 / lines.length);
+    update(scrollYProgress.get());
+    return scrollYProgress.on('change', update);
+  }, [scrollYProgress]);
   return (
     <section
       id="intro"
@@ -73,7 +79,7 @@ export default function Intro() {
       className={`intro ${reduced ? "reduced-intro" : ""}`}
       aria-label="Dein Geburtstagsgeschenk"
     >
-      <div className="intro-stage">
+      <div className={`intro-stage ${timeLayoutActive && !reduced ? "intro-time-active" : ""}`}>
         <div className="intro-date"><LongPress id="date-secret" message="Seit dem 9. April ist jeder Neunte ein kleines bisschen unser Tag."><span>14. Oktober 2026</span></LongPress></div>
         <div className="intro-light" />
         <div className="dust" aria-hidden="true" />
