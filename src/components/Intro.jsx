@@ -43,13 +43,13 @@ function Frame({ index, progress, text, reduced }) {
       style={reduced ? {} : { opacity, y, pointerEvents }}
       className={`intro-frame ${index === 0 ? "intro-opening-frame" : text === "investment" ? "intro-investment-frame" : ""} ${reduced ? "static-frame" : ""}`}
     >
-      <p className="eyebrow">
+      <motion.p className="eyebrow" style={index === 0 && !reduced ? { display: dateDisplay } : {}}>
         {index === 0
           ? "Ein Tag. Ein Mensch. Alles."
           : index === lines.length - 1
             ? "Von Kiron. Für dich."
             : ""}
-      </p>
+      </motion.p>
       {text === "investment" ? <Investment progress={progress} reduced={reduced}/> : index === 0 ? <motion.h1 style={reduced ? {} : { display: dateDisplay }}><LongPress id="date-secret" message="Seit dem 9. April ist jeder Neunte ein kleines bisschen unser Tag."><span>{text}</span></LongPress></motion.h1> : <h1>{text}</h1>}
       {index === 0 && (
         <motion.a className="scroll-hint" href="#beginn" style={reduced ? {} : { display: dateDisplay }}>
