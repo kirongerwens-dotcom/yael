@@ -52,9 +52,9 @@ function Frame({ index, progress, text, reduced }) {
       </p>
       {text === "investment" ? <Investment progress={progress} reduced={reduced}/> : index === 0 ? <motion.h1 style={reduced ? {} : { display: dateDisplay }}><LongPress id="date-secret" message="Seit dem 9. April ist jeder Neunte ein kleines bisschen unser Tag."><span>{text}</span></LongPress></motion.h1> : <h1>{text}</h1>}
       {index === 0 && (
-        <a className="scroll-hint" href="#beginn">
+        <motion.a className="scroll-hint" href="#beginn" style={reduced ? {} : { display: dateDisplay }}>
           <span className="intro-scroll-text">Scroll langsam weiter</span> <span className="intro-scroll-arrow">↓</span>
-        </a>
+        </motion.a>
       )}
       {index === lines.length - 1 && <span className="fine-date">09.04.2026 — ∞</span>}
     </motion.div>
