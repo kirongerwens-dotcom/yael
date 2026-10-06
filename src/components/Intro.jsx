@@ -37,6 +37,7 @@ function Frame({ index, progress, text, reduced }) {
   );
   const y = useTransform(progress, [index / lines.length, (index + 1) / lines.length], [0, -35]);
   const pointerEvents=useTransform(opacity,value=>value>0.5?"auto":"none");
+  const dateDisplay = useTransform(progress, value => value < 1 / lines.length ? "block" : "none");
   return (
     <motion.div
       style={reduced ? {} : { opacity, y, pointerEvents }}
@@ -49,7 +50,7 @@ function Frame({ index, progress, text, reduced }) {
             ? "Von Kiron. Für dich."
             : ""}
       </p>
-      {text === "investment" ? <Investment progress={progress} reduced={reduced}/> : <h1>{text}</h1>}
+      {text === "investment" ? <Investment progress={progress} reduced={reduced}/> : index === 0 ? <motion.h1 style={reduced ? {} : { display: dateDisplay }}><LongPress id="date-secret" message="Seit dem 9. April ist jeder Neunte ein kleines bisschen unser Tag."><span>{text}</span></LongPress></motion.h1> : <h1>{text}</h1>}
       {index === 0 && (
         <a className="scroll-hint" href="#beginn">
           <span className="intro-scroll-text">Scroll langsam weiter</span> <span className="intro-scroll-arrow">↓</span>
@@ -80,7 +81,6 @@ export default function Intro() {
       aria-label="Dein Geburtstagsgeschenk"
     >
       <div className={`intro-stage ${timeLayoutActive && !reduced ? "intro-time-active" : ""}`}>
-        <div className="intro-date"><LongPress id="date-secret" message="Seit dem 9. April ist jeder Neunte ein kleines bisschen unser Tag."><span>14. Oktober 2026</span></LongPress></div>
         <div className="intro-light" />
         <div className="dust" aria-hidden="true" />
         {lines.map((text, i) => (
