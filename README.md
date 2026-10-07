@@ -24,10 +24,10 @@ Vites vorhandenes `base: '/yael/'` bleibt unverändert. Im Upload war kein `.git
 ## Ergänzungen
 
 - Countdown bis 14.10.2026, 00:00 Uhr Europe/Berlin. Neue Mini-Briefe vom 4. bis 13. Oktober, bisherige Briefe bleiben auswählbar. Danach bleibt die Seite zugänglich und das Archiv erscheint unten als aufklappbare Erinnerung.
-- Unsichtbare Testfreischaltung: innerhalb von zehn Sekunden links oben, rechts oben, rechts unten, links unten und dieselbe Runde noch einmal. Die 48-Pixel-Ecken beobachten Pointer-Ereignisse, ohne andere Bedienelemente zu blockieren. Falsche Ecke oder Zeitüberschreitung setzt zurück. Die Freischaltung bleibt nur in sessionStorage; der normale Entdeckungsfortschritt wird davon nicht verändert.
+- Unsichtbare Testfreischaltung: zehn Taps auf den Countdown innerhalb von sechs Sekunden. Timeout setzt die Folge zurück. Keine Eckengeste. Die Freischaltung bleibt nur in sessionStorage und schließt Analytics aus.
 - Kleine SVG-Karte, symbolische Anfangsentfernung 142 km. Die Strecke verkürzt sich bis zur Sequenz direkt vor dem Brief. Die Karte vergrößert sich; beide Herzen treffen sich vor den beiden neuen Sätzen. Normales Scrollen bleibt immer möglich, ohne Scrollsperre.
 - Fünf kleine Herzen, lokaler Fortschritt, geheime Umarmungsnachricht nach dem fünften Fund. Bestehende Insider bleiben erhalten.
-- Zwei versteckte 750-ms-Interaktionen: das kleine feste Datum oben im Intro und „Deal.“ im Reiseabschnitt. Bewegung über zehn Pixel bricht ab, damit Scrollen nicht aus Versehen auslöst.
+- Zwei versteckte 750-ms-Interaktionen: das ursprüngliche Datum in der ersten Intro-Szene und „Deal.“ im Reiseabschnitt. Bewegung über zehn Pixel bricht ab, damit Scrollen nicht aus Versehen auslöst.
 - Briefpapier kommt nach dem Öffnen des Umschlags hervor, Kirons Signatur wird als SVG geschrieben. Der ursprüngliche Brieftext bleibt erhalten.
 - Ergänzte konkrete Zukunftsmomente, „Öffnen, wenn …“-Darstellung der vorhandenen sieben Nachrichtenkategorien, einfache Geburtstags-Finale und kleine Überraschung beim Weiterscrollen.
 - Wiederkehrende Besucher können nach dem ersten Öffnen des Briefs direkt zu „Unser Anfang“ springen. Das Intro wird nicht automatisch übersprungen. Reduzierte Bewegung zeigt eine lesbare statische Alternative.
@@ -51,3 +51,7 @@ Für den Gerätetest: Countdown ansehen, acht Ecken tippen, scrollen bis zum Bri
 ## Zusätzliche private Analytics
 
 Siehe `ANALYTICS_SETUP.md`. Ein kleiner inline gestalteter Einwilligungsabschnitt startet die Messung ausschließlich nach „Ja ♡“. „Lieber nicht“ lässt das ganze Geschenk nutzbar. Die gespeicherte Entscheidung kann unter Datenschutz geändert werden. Das separate Dashboard unter `/yael/admin.html` verlangt Google/Firebase Authentication und den serverseitigen Admin-Claim. Firebase-Konfiguration, Regeln, Index, TTL und Kontaktangaben müssen vor Veröffentlichung eingerichtet werden. Alle Geburtstagserweiterungen bleiben erhalten.
+
+## Persönliche Erweiterung
+
+Erinnerungskapitel, Yael-Archiv, Beobachtungen, 580+-Sequenz, optionale Klänge und Making-of/Credits: siehe `PERSONAL_WORLD.md`. Editierbare Daten: `src/data/personal.js`.

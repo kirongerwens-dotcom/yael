@@ -2,6 +2,8 @@ import { useCallback, useState } from "react";
 import Analytics from "./components/Analytics";
 import { excludeAnalytics } from "./analytics/runtime";
 import Intro from "./components/Intro";
+import ExperienceSound, { SoundControls } from "./components/ExperienceSound";
+import { MemoryExchange, HennaMemory, TrainMemory, YaelArchive, IPayAttention, ProjectHours, FinalCredits, ReturnMemory } from "./components/PersonalWorld";
 import {
   RelationshipStart,
   Distance,
@@ -28,7 +30,7 @@ export default function App() {
   return (
     <>
     <Analytics developer={developer}/>
-    {!developer && date < BIRTHDAY ? <BirthdayGate now={now} date={date} onUnlock={unlock}/> : <Discoveries>
+    {!developer && date < BIRTHDAY ? <BirthdayGate now={now} date={date} onUnlock={unlock}/> : <Discoveries><ExperienceSound>
       <a className="skip-link" href="#beginn">
         Zum Geschenk
       </a>
@@ -36,6 +38,8 @@ export default function App() {
         <DistanceJourney/>
         {returning && <a className="return-link" href="#beginn">Wieder hier? Direkt zu uns ↓</a>}
         <Intro />
+        <ReturnMemory/>
+        <SoundControls/>
         <div className="chapter-nav">
           <button
             aria-expanded={menu}
@@ -63,19 +67,26 @@ export default function App() {
         <RelationshipStart /><div className="heart-location"><HiddenHeart id={1}/></div>
         <Distance />
         <TwoMeetings />
+        <MemoryExchange/>
+        <HennaMemory/>
+        <TrainMemory/>
         <DigitalDays /><div className="heart-location"><HiddenHeart id={2}/></div>
         <LoveReasons />
+        <IPayAttention/>
+        <YaelArchive/>
         <Eyes />
         <SmallThings /><div className="heart-location"><HiddenHeart id={3}/></div>
         <NeedMe />
         <Future /><div className="heart-location"><HiddenHeart id={4}/></div>
+        <ProjectHours/>
         <JourneyClimax />
         <LoveLetter /><div className="heart-location"><HiddenHeart id={5}/></div>
         <SecretSection />
         <DailyLoveLetters date={date} archive/>
         <Finale />
+        <FinalCredits/>
       </main>
-    </Discoveries>}
+    </ExperienceSound></Discoveries>}
     </>
   );
 }

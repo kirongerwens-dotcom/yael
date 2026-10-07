@@ -1,0 +1,37 @@
+// Persönliche Inhalte: hier ergänzen, ohne Animationen ändern zu müssen.
+export const memories = [
+ ['Bei mir geblieben','Deine Hose liegt immer noch bei mir. Und sie riecht noch nach dir.'],
+ ['Mitgegeben','Mein Kuscheltier war ungefähr eine Woche bei dir. Ich hatte es dir mitgegeben.'],
+ ['Auf meiner Haut','Du hast mir Henna gemalt.'],
+ ['Am Bahnsteig','Nach beiden Besuchen haben wir zusammen auf deinen Zug nach Hause gewartet.'],
+ ['Zwei Heimfahrten','Beide Male bist du in die falsche Richtung gefahren.'],
+ ['Rot','Deine Lieblingsfarbe.'],
+ ['Sushi','Etwas, das du magst.'],
+ ['Im Sattel','Du reitest.'],
+ ['Pinkie Pie','My Little Pony gehört zu den kleinen Dingen, die ich mir merke.'],
+ ['Rosa und weiß','Die Red-Bull-Sorten, die du magst.'],
+ ['Hetfield','Deine Katze.'],
+ ['Yuna','Dein Hund.'],
+ ['Links','Du bist Linkshänderin.'],
+ ['Braun','Deine Augen. Deine Haare.'],
+ ['Kreativ','Kunst, Englisch und Deutsch gehören zu deinen Lieblingsfächern.'],
+];
+export const observations = [
+ ['Rot.','Deine Lieblingsfarbe. Natürlich habe ich mir das gemerkt.'],
+ ['Links.','Die Hand, mit der du schreibst.'],
+ ['Rosa. Weiß.','Wenn es um deinen Red Bull geht.'],
+ ['Sushi.','Auch das gehört zu meinem kleinen inneren Notizbuch.'],
+ ['Pinkie Pie.','Ein Name, der inzwischen auch in meinem Kopf wohnt.'],
+ ['Braune Augen.','Und braune Haare. Kleine Details. Für mich keine Nebensachen.'],
+ ['Hetfield & Yuna.','Deine Katze und dein Hund.'],
+ ['Kunst. Englisch. Deutsch.','Ich merke mir auch, welche Fächer du magst.'],
+ ['Pferde.','Weil Reiten zu dir gehört.'],
+];
+export const changelog = [
+ ['v0.4','Das sieht noch nicht nach Yael aus.'],
+ ['v0.7','Die Karte ungefähr zum 400. Mal geändert.'],
+ ['v0.9','Funktioniert auf meinem Mac.'],
+ ['v0.9.1','Natürlich nicht auf dem iPhone.'],
+ ['v0.99','Nur noch eine Kleinigkeit.'],
+ ['v0.99.1','Es war nicht nur eine Kleinigkeit.'],
+];

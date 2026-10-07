@@ -4,9 +4,12 @@ import { track } from "../analytics/runtime";
 import { useState } from "react";
 import { Mail, Heart } from "lucide-react";
 import { Section, Reveal, readStore, writeStore } from "./Shared";
+import { useExperienceSound } from "./ExperienceSound";
+import { HennaMotif } from "./PersonalWorld";
 import { letter } from "../data/messages";
 export default function LoveLetter() {
   const {discover}=useDiscovery();
+  const play=useExperienceSound();
   const reduced=useReducedMotion();
   const [open, setOpen] = useState(false);
   const [presses, setPresses] = useState(0);
@@ -17,6 +20,7 @@ export default function LoveLetter() {
   const birthday = now === "2026-10-14";
   const after = now > "2026-10-14";
   function openLetter() {
+    if(!open)play("letter");
     track(open?"love_letter_closed":"love_letter_opened");
     setOpen(!open);
     writeStore("yael-visited", true);
@@ -70,6 +74,7 @@ export default function LoveLetter() {
               {p}
             </p>
           ))}
+        <HennaMotif small/>
         <svg className="written-signature" viewBox="0 0 240 70" role="img" aria-label="Kiron"><motion.path d="M20 55L35 10M28 35L65 12M28 35Q48 40 61 58M74 35L69 56M78 22L79 23M85 55L94 33Q108 28 107 38M113 43Q114 27 128 32Q145 36 134 52Q117 65 113 43M143 56L154 33L149 51Q170 20 177 37L173 55Q190 66 212 47" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" initial={{pathLength:reduced?1:0}} whileInView={{pathLength:1}} viewport={{once:true}} transition={{duration:2}}/></svg>
         </motion.article>
       )}
